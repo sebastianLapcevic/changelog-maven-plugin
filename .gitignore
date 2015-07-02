@@ -1,0 +1,13 @@
+
+#Java Ignores
+nbproject/private/
+build/
+nbbuild/
+dist/
+
+#Netbeans Ignores
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/
+/target/
