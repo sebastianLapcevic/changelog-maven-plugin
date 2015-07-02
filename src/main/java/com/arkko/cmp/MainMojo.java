@@ -21,17 +21,15 @@ public class MainMojo extends AbstractMojo{
     
     private final Log log = getLog();
     
-    @Parameter(defaultValue = "${project.basedir}")
+    @Parameter(required = true)
     private File repositoryPath;
  
     @Override
     public void execute() throws MojoExecutionException
     {
-        log.info("TEST");        
         GitLogReader reader = new GitLogReader();
         
         try{
-            log.info(repositoryPath.getAbsolutePath());
             ArrayList<String> logList = reader.readLog(repositoryPath.getAbsolutePath());
             for(String logMessage : logList){
                 log.info(logMessage);
