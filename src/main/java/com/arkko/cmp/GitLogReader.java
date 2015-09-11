@@ -18,7 +18,7 @@ public class GitLogReader {
     public ArrayList<String> readLog(String repositoryPath) {
         try {
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            Repository repo = builder.setGitDir(new File(repositoryPath + "\\.git")).setMustExist(true).build();
+            Repository repo = builder.setGitDir(new File(repositoryPath + "/.git")).setMustExist(true).build();
             Git git = new Git(repo);
             Iterable<RevCommit> log = git.log().call();
             ArrayList<String> logMessages = new ArrayList<>();

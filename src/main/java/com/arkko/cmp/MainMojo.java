@@ -18,7 +18,7 @@ public class MainMojo extends AbstractMojo{
     
     private final Log log = getLog();
     
-    private final File repositoryPath = new File("./");
+    private final File repositoryPath = new File("");
  
     @Override
     public void execute() throws MojoExecutionException
