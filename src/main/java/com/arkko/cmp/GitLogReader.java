@@ -4,6 +4,7 @@ import com.arkko.cmp.exceptions.ChangeLogException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
@@ -15,7 +16,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
  * @author slapcevic
  */
 public class GitLogReader {
-    public ArrayList<String> readLog(String repositoryPath) {
+    public List<String> readLog(String repositoryPath) {
         try {
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
             Repository repo = builder.setGitDir(new File(repositoryPath + "/.git")).setMustExist(true).build();
