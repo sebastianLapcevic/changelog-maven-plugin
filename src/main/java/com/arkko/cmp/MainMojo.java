@@ -2,6 +2,7 @@ package com.arkko.cmp;
 
 import com.arkko.cmp.exceptions.ChangeLogException;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,7 +39,7 @@ public class MainMojo extends AbstractMojo {
             log.info("Generating Changelog");
             generator.generateChangelog(versions);
             log.info("Done");
-        } catch (ChangeLogException | NullPointerException | ParserConfigurationException | TransformerException e) {
+        } catch (ChangeLogException | NullPointerException | ParserConfigurationException | TransformerException | IOException e) {
             log.log(Level.SEVERE, e.getMessage());
             log.log(Level.SEVERE, e.getClass().toString());
         }
