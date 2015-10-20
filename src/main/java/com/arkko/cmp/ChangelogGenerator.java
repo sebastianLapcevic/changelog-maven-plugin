@@ -3,23 +3,16 @@ package com.arkko.cmp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.markdown4j.Markdown4jProcessor;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * @author slapcevic
@@ -27,26 +20,21 @@ import org.w3c.dom.Element;
 public class ChangelogGenerator {
 
     private static final Logger log = Logger.getLogger(ChangelogGenerator.class.getName());
-
     String markdown;
 
     public void generateChangelog(HashMap<String, HashMap<String, List<HashMap<String, String>>>> versions) throws ParserConfigurationException, TransformerException, IOException {
         log.info("Start");
         markdown = "# Changelog \n";
-
-        log.log(Level.INFO, "Getting versions: {0}", versions);
         for (Entry<String, HashMap<String, List<HashMap<String, String>>>> entry : versions.entrySet()) {
             String key = entry.getKey();
-            log.log(Level.INFO, "LLAVE: {0}", key);
             HashMap value = entry.getValue();
             generateVersion(value, key);
         }
         generateFile();
-        
         log.info("Done");
     }
-    
-    private void generateFile() throws IOException{
+
+    private void generateFile() throws IOException {
         Markdown4jProcessor processor = new Markdown4jProcessor();
         String mdFile = processor.process(markdown);
         File file;
@@ -54,32 +42,22 @@ public class ChangelogGenerator {
         try {
             file = new File("target/changelog.md");
             fop = new FileOutputStream(file);
-            
             if (!file.exists()) {
                 file.createNewFile();
             }
             byte[] contentInBytes = mdFile.getBytes();
-
             fop.write(contentInBytes);
-            fop.flush();
-            fop.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
-            try {
-                if (fop != null) {
-                    fop.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (fop != null) {
+                fop.flush();
+                fop.close();
             }
         }
     }
 
     private void generateVersion(HashMap<String, List<HashMap<String, String>>> commands, String versionName) {
-        markdown = markdown + "### " + versionName + " \n";
-
+        markdown = markdown + "## " + versionName + " \n";
+        
         appendCommits(commands.get("feat"), "Features");
         appendCommits(commands.get("fix"), "Fixes");
         appendCommits(commands.get("docs"), "Documentation");
@@ -91,9 +69,10 @@ public class ChangelogGenerator {
 
     private void appendCommits(List<HashMap<String, String>> commits, String commandName) {
         if (!commits.isEmpty()) {
+            markdown = markdown + "### "+commandName+" \n";
             for (HashMap<String, String> commit : commits) {
-                markdown = markdown + "- **" + commit.get("scope").trim() + "**:";
-                markdown = markdown + commit.get("subject") + "\n";
+                markdown = markdown + "- **" + commit.get("scope").trim() + ":**";
+                markdown = markdown + commit.get("subject") + " \n";
                 if (!commit.get("body").isEmpty()) {
                     markdown = markdown + "..-" + commit.get("body").trim() + " \n";
                     markdown = markdown + "..-" + commit.get("footer").trim() + " \n";

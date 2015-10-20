@@ -42,14 +42,14 @@ public class GitParser {
         String r = "(?:version)(?:.*)\\:(.*)";
         Pattern pattern = Pattern.compile(r);
         Matcher matcher;
-        String version = "";
+        String version;
         List<String> versionCommits = new ArrayList();
-        Collections.reverse(commits);
         
         for (String commit : commits) {
             commit = commit.trim();
             matcher = pattern.matcher(commit);
             if (matcher.matches()) {
+                version = matcher.group(1);
                 if (!versionCommits.isEmpty()) {
                     if(version.isEmpty()){
                         versions.put("Changes", createVersion(versionCommits));
@@ -57,7 +57,6 @@ public class GitParser {
                         versions.put(version, createVersion(versionCommits));
                     }
                 }
-                version = matcher.group(1);
                 versionCommits = new ArrayList();
             } else {
                 versionCommits.add(commit);

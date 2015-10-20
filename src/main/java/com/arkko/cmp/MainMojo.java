@@ -33,9 +33,9 @@ public class MainMojo extends AbstractMojo {
             log.info("Start");
             log.info("Getting commits");
             List<String> logList = reader.readLog(repositoryPath.getAbsolutePath());
+            List<String> lines =  new ChangelogReader().readChangelog();
             log.info("Parsing commits");
             HashMap<String, HashMap<String, List<HashMap<String, String>>>> versions = parser.parseCommits(logList);
-            log.info("VERSIONES: "+versions.toString());
             log.info("Generating Changelog");
             generator.generateChangelog(versions);
             log.info("Done");
