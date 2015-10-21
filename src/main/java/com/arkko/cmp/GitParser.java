@@ -1,8 +1,9 @@
 package com.arkko.cmp;
 
+import com.arkko.cmp.entities.Commit;
+import com.arkko.cmp.entities.Type;
+import com.arkko.cmp.entities.Version;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -15,46 +16,53 @@ import java.util.regex.Pattern;
 public class GitParser {
 
     private static final Logger log = Logger.getLogger(ChangelogGenerator.class.getName());
-    private List<HashMap<String, String>> feat;
-    private List<HashMap<String, String>> fix;
-    private List<HashMap<String, String>> docs;
-    private List<HashMap<String, String>> style;
-    private List<HashMap<String, String>> refactor;
-    private List<HashMap<String, String>> test;
-    private List<HashMap<String, String>> chore;
+    private Type feat;
+    private Type fix;
+    private Type docs;
+    private Type style;
+    private Type refactor;
+    private Type test;
+    private Type chore;
 
     public GitParser() {
         cleanLists();
     }
 
     private void cleanLists() {
-        feat = new ArrayList();
-        fix = new ArrayList();
-        docs = new ArrayList();
-        style = new ArrayList();
-        refactor = new ArrayList();
-        test = new ArrayList();
-        chore = new ArrayList();
+        feat = new Type();
+        feat.setCode("feat");
+        fix = new Type();
+        fix.setCode("fix");
+        docs = new Type();
+        docs.setCode("docs");
+        style = new Type();
+        style.setCode("style");
+        refactor = new Type();
+        refactor.setCode("refator");
+        test = new Type();
+        test.setCode("test");
+        chore = new Type();
+        chore.setCode("chore");
     }
 
-    public HashMap<String, HashMap<String, List<HashMap<String, String>>>> parseCommits(List<String> commits) {
-        HashMap<String, HashMap<String, List<HashMap<String, String>>>> versions = new HashMap();
+    public List<Version> parseCommits(List<String> commits) {
+        List<Version> versions = new ArrayList();
         String r = "(?:version)(?:.*)\\:(.*)";
         Pattern pattern = Pattern.compile(r);
         Matcher matcher;
-        String version;
+        String versionData;
         List<String> versionCommits = new ArrayList();
         
         for (String commit : commits) {
             commit = commit.trim();
             matcher = pattern.matcher(commit);
             if (matcher.matches()) {
-                version = matcher.group(1);
+                versionData = matcher.group(1);
                 if (!versionCommits.isEmpty()) {
-                    if(version.isEmpty()){
-                        versions.put("Changes", createVersion(versionCommits));
+                    if(versionData.isEmpty()){
+                        versions.add(createVersion(versionCommits, "Changes"));
                     }else{
-                        versions.put(version, createVersion(versionCommits));
+                        versions.add(createVersion(versionCommits, versionData));
                     }
                 }
                 versionCommits = new ArrayList();
@@ -65,29 +73,33 @@ public class GitParser {
         return versions;
     }
 
-    private HashMap<String, List<HashMap<String, String>>> createVersion(List<String> commits) {
+    private Version createVersion(List<String> commits, String versionName) {
+        Version version = new Version();
         String r = "(feat|fix|docs|style|refactor|test|chore)\\((.*)\\)\\:(.*)(?:.*|\\n\\n)((?:\\s|.*)*)";
         Pattern pattern = Pattern.compile(r);
         Matcher matcher;
-        for (String commit : commits) {
-            HashMap<String, String> commitData;
-            matcher = pattern.matcher(commit);
+        for (String commitData : commits) {
+            Commit commit;
+            matcher = pattern.matcher(commitData);
             if (matcher.matches()) {
-                String type = matcher.group(1);
+                String typeName = matcher.group(1);
                 String scope = matcher.group(2);
                 String subject = matcher.group(3);
                 String bodyFooter = matcher.group(4);
-                commitData = createCommit(scope, subject, bodyFooter);
-                addToList(type, commitData);
+                commit = createCommit(scope, subject, bodyFooter);
+                addToList(typeName, commit);
             }
         }
-        HashMap<String, List<HashMap<String, String>>> version = createTypes();
+        List<Type> types = createTypes();
         cleanLists();
+        
+        version.setTypes(types);
+        version.setName(versionName);
         return version;
     }
 
-    private HashMap<String, String> createCommit(String scope, String subject, String bodyFooter) {
-        HashMap<String, String> commit = new HashMap();
+    private Commit createCommit(String scope, String subject, String bodyFooter) {
+        Commit commit = new Commit();
         String body = "";
         String footer = "";
         if (!bodyFooter.isEmpty()) {
@@ -95,48 +107,49 @@ public class GitParser {
             body = parts[0];
             footer = parts[1];
         }
-        commit.put("subject", subject);
-        commit.put("body", body);
-        commit.put("footer", footer);
-        commit.put("scope", scope);
+        commit.setSubject(subject);
+        commit.setBody(body);
+        commit.setFooter(footer);
+        commit.setScope(scope);
+        
         return commit;
     }
 
-    private void addToList(String type, HashMap<String, String> commitData) {
+    private void addToList(String type, Commit commit) {
         switch (type) {
             case "feat":
-                feat.add(commitData);
+                feat.addCommit(commit);
                 break;
             case "fix":
-                fix.add(commitData);
+                fix.addCommit(commit);
                 break;
             case "docs":
-                docs.add(commitData);
+                docs.addCommit(commit);
                 break;
             case "style":
-                style.add(commitData);
+                style.addCommit(commit);
                 break;
             case "refactor":
-                refactor.add(commitData);
+                refactor.addCommit(commit);
                 break;
             case "test":
-                test.add(commitData);
+                test.addCommit(commit);
                 break;
             case "chore":
-                chore.add(commitData);
+                chore.addCommit(commit);
                 break;
         }
     }
 
-    private HashMap<String, List<HashMap<String, String>>> createTypes() {
-        HashMap<String, List<HashMap<String, String>>> types = new HashMap();
-        types.put("feat", feat);
-        types.put("fix", fix);
-        types.put("docs", docs);
-        types.put("style", style);
-        types.put("refactor", refactor);
-        types.put("test", test);
-        types.put("chore", chore);
+    private List<Type> createTypes() {
+        List<Type> types = new ArrayList();
+        types.add(feat);
+        types.add(fix);
+        types.add(docs);
+        types.add(style);
+        types.add(refactor);
+        types.add(test);
+        types.add(chore);
         return types;
     }
 }

@@ -1,11 +1,12 @@
 package com.arkko.cmp;
 
+import com.arkko.cmp.entities.Commit;
+import com.arkko.cmp.entities.Type;
+import com.arkko.cmp.entities.Version;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,14 +21,18 @@ public class ChangelogGenerator {
     private static final Logger log = Logger.getLogger(ChangelogGenerator.class.getName());
     String markdown;
 
-    public void generateChangelog(HashMap<String, HashMap<String, List<HashMap<String, String>>>> versions) throws ParserConfigurationException, TransformerException, IOException {
+    public void generateChangelog(List<Version> versions) throws ParserConfigurationException, TransformerException, IOException {
         log.info("Start");
-        markdown = "# Changelog \n";
-        for (Entry<String, HashMap<String, List<HashMap<String, String>>>> entry : versions.entrySet()) {
-            String key = entry.getKey();
-            HashMap value = entry.getValue();
-            generateVersion(value, key);
+        markdown = "# Changelog \n";        
+        
+        for (Version v : versions) {
+            String name = v.getName();
+            List<Type> types = v.getTypes();
+            appendVersion(types, name);
         }
+        
+        
+        
         generateFile();
         log.info("Done");
     }
@@ -54,29 +59,23 @@ public class ChangelogGenerator {
         }
     }
 
-    private void generateVersion(HashMap<String, List<HashMap<String, String>>> commands, String versionName) {
+    private void appendVersion(List<Type> types, String versionName) {
         markdown = markdown + "> ## " + versionName + " \n";
-        
-        appendCommits(commands.get("feat"), "Features");
-        appendCommits(commands.get("fix"), "Fixes");
-        appendCommits(commands.get("docs"), "Documentation");
-        appendCommits(commands.get("style"), "Style");
-        appendCommits(commands.get("refactor"), "Refactor");
-        appendCommits(commands.get("test"), "Tests");
-        appendCommits(commands.get("chore"), "Chores");
+        for(Type t: types){
+            appendCommits(t.getCommits(), t.getName());
+        }
     }
 
-    private void appendCommits(List<HashMap<String, String>> commits, String commandName) {
+    private void appendCommits(List<Commit> commits, String commandName) {
         if (!commits.isEmpty()) {
-            markdown = markdown + "> > ### "+commandName+" \n> \n";
-            for (HashMap<String, String> commit : commits) {
-                markdown = markdown + "> > > **" + commit.get("scope").trim() + ":**"+ commit.get("subject") + " \n> \n"; 
-                if (!commit.get("body").isEmpty()) {
-                    markdown = markdown + " " + commit.get("body").trim() + " \n";
-                    markdown = markdown + " " + commit.get("footer").trim() + " \n";
+            markdown = markdown + "> > ### " + commandName + " \n> \n";
+            for (Commit commit : commits) {
+                markdown = markdown + "> > > **" + commit.getScope().trim() + ":**" + commit.getSubject() + " \n> \n";
+                if (!commit.getBody().isEmpty()) {
+                    markdown = markdown + " " + commit.getBody().trim() + " \n";
+                    markdown = markdown + " " + commit.getFooter().trim() + " \n";
                 }
             }
         }
     }
-
 }

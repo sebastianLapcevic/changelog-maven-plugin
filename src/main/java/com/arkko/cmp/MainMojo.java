@@ -1,5 +1,6 @@
 package com.arkko.cmp;
 
+import com.arkko.cmp.entities.Version;
 import com.arkko.cmp.exceptions.ChangeLogException;
 import java.io.File;
 import java.io.IOException;
@@ -31,15 +32,12 @@ public class MainMojo extends AbstractMojo {
         ChangelogGenerator generator = new ChangelogGenerator();
         try {
             log.info("Start");
-            log.info("Getting commits");
             List<String> logList = reader.readLog(repositoryPath.getAbsolutePath());
-            List<String> lines =  new ChangelogReader().readChangelog();
-            log.info("Parsing commits");
-            HashMap<String, HashMap<String, List<HashMap<String, String>>>> versions = parser.parseCommits(logList);
-            log.info("Generating Changelog");
+            //List<String> lines =  new ChangelogReader().readChangelog();
+            List<Version> versions = parser.parseCommits(logList);
             generator.generateChangelog(versions);
             log.info("Done");
-        } catch (ChangeLogException | NullPointerException | ParserConfigurationException | TransformerException | IOException e) {
+        } catch (ChangeLogException | NullPointerException | TransformerException | IOException | ParserConfigurationException e) {
             log.log(Level.SEVERE, e.getMessage());
             log.log(Level.SEVERE, e.getClass().toString());
         }
