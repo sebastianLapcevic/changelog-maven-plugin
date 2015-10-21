@@ -3,11 +3,9 @@ package com.arkko.cmp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +33,7 @@ public class ChangelogGenerator {
     }
 
     private void generateFile() throws IOException {
+        log.log(Level.INFO, markdown);
         Markdown4jProcessor processor = new Markdown4jProcessor();
         String mdFile = processor.process(markdown);
         File file;
@@ -56,7 +55,7 @@ public class ChangelogGenerator {
     }
 
     private void generateVersion(HashMap<String, List<HashMap<String, String>>> commands, String versionName) {
-        markdown = markdown + "## " + versionName + " \n";
+        markdown = markdown + "> ## " + versionName + " \n";
         
         appendCommits(commands.get("feat"), "Features");
         appendCommits(commands.get("fix"), "Fixes");
@@ -69,13 +68,12 @@ public class ChangelogGenerator {
 
     private void appendCommits(List<HashMap<String, String>> commits, String commandName) {
         if (!commits.isEmpty()) {
-            markdown = markdown + "### "+commandName+" \n";
+            markdown = markdown + "> > ### "+commandName+" \n> \n";
             for (HashMap<String, String> commit : commits) {
-                markdown = markdown + "- **" + commit.get("scope").trim() + ":**";
-                markdown = markdown + commit.get("subject") + " \n";
+                markdown = markdown + "> > > **" + commit.get("scope").trim() + ":**"+ commit.get("subject") + " \n> \n"; 
                 if (!commit.get("body").isEmpty()) {
-                    markdown = markdown + "..-" + commit.get("body").trim() + " \n";
-                    markdown = markdown + "..-" + commit.get("footer").trim() + " \n";
+                    markdown = markdown + " " + commit.get("body").trim() + " \n";
+                    markdown = markdown + " " + commit.get("footer").trim() + " \n";
                 }
             }
         }

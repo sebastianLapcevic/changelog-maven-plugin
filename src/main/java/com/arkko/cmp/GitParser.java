@@ -66,7 +66,7 @@ public class GitParser {
     }
 
     private HashMap<String, List<HashMap<String, String>>> createVersion(List<String> commits) {
-        String r = "(feat|fix|docs|style|refactor|test|chore)\\((.*)\\)\\:(.+)(?:.|\\n\\n)((?:\\s|.*)*)";
+        String r = "(feat|fix|docs|style|refactor|test|chore)\\((.*)\\)\\:(.*)(?:.*|\\n\\n)((?:\\s|.*)*)";
         Pattern pattern = Pattern.compile(r);
         Matcher matcher;
         for (String commit : commits) {
