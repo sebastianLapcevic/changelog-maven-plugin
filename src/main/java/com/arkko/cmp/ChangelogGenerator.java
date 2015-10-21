@@ -60,7 +60,7 @@ public class ChangelogGenerator {
     }
 
     private void appendVersion(List<Type> types, String versionName) {
-        markdown = markdown + "> ## " + versionName + " \n";
+        markdown = markdown + "> \n> ## " + versionName + " \n";
         for(Type t: types){
             appendCommits(t.getCommits(), t.getName());
         }
@@ -68,9 +68,9 @@ public class ChangelogGenerator {
 
     private void appendCommits(List<Commit> commits, String commandName) {
         if (!commits.isEmpty()) {
-            markdown = markdown + "> > ### " + commandName + " \n> \n";
+            markdown = markdown + "> \n> > ### " + commandName + " \n";
             for (Commit commit : commits) {
-                markdown = markdown + "> > > **" + commit.getScope().trim() + ":**" + commit.getSubject() + " \n> \n";
+                markdown = markdown + "> > > **" + commit.getScope().trim() + ":**" + commit.getSubject() + " \n";
                 if (!commit.getBody().isEmpty()) {
                     markdown = markdown + " " + commit.getBody().trim() + " \n";
                     markdown = markdown + " " + commit.getFooter().trim() + " \n";
