@@ -38,7 +38,7 @@ public class GitParser {
         style = new Type();
         style.setCode("style");
         refactor = new Type();
-        refactor.setCode("refator");
+        refactor.setCode("refactor");
         test = new Type();
         test.setCode("test");
         chore = new Type();
